@@ -19,10 +19,15 @@ const postCard = (req, res) => {
 };
 
 const deleteCard = (req, res) => Card.findByIdAndRemove(req.params.cardId)
-  .then(() => res.status(200).send({ message: 'Пост удалён' }))
+  .then((card) => {
+    if (!card) {
+      res.status(404).send({ message: 'Пост не найден' });
+    }
+    res.status(200).send({ message: 'Пост успешно удален' });
+  })
   .catch((err) => {
     if (err.name === 'CastError') {
-      res.status(404).send({ message: 'Пост не найден' });
+      res.status(400).send({ message: 'Переданы некорректные данные' });
       return;
     }
     res.status(500).send({ message: 'На сервере произошла ошибка' });
@@ -34,10 +39,15 @@ const addLike = (req, res) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .then((card) => res.status(200).send({ data: card }))
+    .then((card) => {
+      if (!card) {
+        res.status(404).send({ message: 'Пост не найден' });
+      }
+      res.status(200).send({ data: card });
+    })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(404).send({ message: 'Пост не найден' });
+        res.status(404).send({ message: 'Переданы некорректные данные' });
         return;
       }
       res.status(500).send({ message: 'На сервере произошла ошибка' });
@@ -50,10 +60,15 @@ const deleteLike = (req, res) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   )
-    .then((card) => res.status(200).send({ data: card }))
+    .then((card) => {
+      if (!card) {
+        res.status(404).send({ message: 'Пост не найден' });
+      }
+      res.status(200).send({ data: card });
+    })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(404).send({ message: 'Пост не найден' });
+        res.status(404).send({ message: 'Переданы некорректные данные' });
         return;
       }
       res.status(500).send({ message: 'На сервере произошла ошибка' });
