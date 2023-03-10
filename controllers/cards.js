@@ -1,14 +1,14 @@
 const Card = require('../models/card');
 
 const getCards = (req, res) => Card.find({})
-  .then((cards) => res.status(200).send({ data: cards }))
+  .then((cards) => res.status(200).send(cards))
   .catch(() => res.status(500).send({ message: 'На сервере произошла ошибка' }));
 
 const postCard = (req, res) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   return Card.create({ name, link, owner })
-    .then((card) => res.status(200).send({ data: card }))
+    .then((card) => res.status(200).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректные данные' });
@@ -43,11 +43,11 @@ const addLike = (req, res) => {
       if (!card) {
         res.status(404).send({ message: 'Пост не найден' });
       }
-      res.status(200).send({ data: card });
+      res.status(200).send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(404).send({ message: 'Переданы некорректные данные' });
+        res.status(400).send({ message: 'Переданы некорректные данные' });
         return;
       }
       res.status(500).send({ message: 'На сервере произошла ошибка' });
@@ -64,11 +64,11 @@ const deleteLike = (req, res) => {
       if (!card) {
         res.status(404).send({ message: 'Пост не найден' });
       }
-      res.status(200).send({ data: card });
+      res.status(200).send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(404).send({ message: 'Переданы некорректные данные' });
+        res.status(400).send({ message: 'Переданы некорректные данные' });
         return;
       }
       res.status(500).send({ message: 'На сервере произошла ошибка' });
