@@ -5,15 +5,16 @@ const getUsers = (req, res) => User.find({})
   .catch(() => res.status(500).send('На сервере произошла ошибка'));
 
 const getCurrentUser = (req, res) => User.findById(req.params.id)
-  .then((user) => res.status(200).send({
-    id: user._id,
-    name: user.name,
-    about: user.about,
-    avatar: user.avatar,
-  }))
+  .then((user) => {
+    if (!user) {
+      res.status(404).send({ message: 'Такого пользователя не существует' });
+      return;
+    }
+    res.status(200).send({ data: user });
+  })
   .catch((err) => {
     if (err.name === 'CastError') {
-      res.status(404).send({ message: 'Пользователь не найден' });
+      res.status(400).send({ message: 'Переданы некорректные данные' });
       return;
     }
     res.status(500).send({ message: 'На сервере произошла ошибка' });
@@ -21,7 +22,7 @@ const getCurrentUser = (req, res) => User.findById(req.params.id)
 
 const postUser = (req, res) => {
   const { name, about, avatar } = req.body;
-  return User.create({ name, about, avatar })
+  return User.create({ name, about, avatar }, { runValidators: true })
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
