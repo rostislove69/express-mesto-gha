@@ -1,36 +1,39 @@
 const Card = require('../models/card');
+const { statusCodes, message } = require('../utils/constants');
 
 const getCards = (req, res) => Card.find({})
-  .then((cards) => res.status(200).send(cards))
-  .catch(() => res.status(500).send({ message: 'На сервере произошла ошибка' }));
+  .populate(['owner', 'likes'])
+  .then((cards) => res.status(statusCodes.ok).send(cards))
+  .catch(() => res.status(statusCodes.serverError).send(message.serverError));
 
 const postCard = (req, res) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   return Card.create({ name, link, owner })
-    .then((card) => res.status(200).send(card))
+    .then((card) => res.status(statusCodes.created).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
+        res.status(statusCodes.badRequest).send(message.badRequest);
         return;
       }
-      res.status(500).send({ message: 'На сервере произошла ошибка' });
+      res.status(statusCodes.serverError).send(message.serverError);
     });
 };
 
 const deleteCard = (req, res) => Card.findByIdAndRemove(req.params.cardId)
   .then((card) => {
     if (!card) {
-      res.status(404).send({ message: 'Пост не найден' });
+      res.status(statusCodes.notFound).send(message.cardNotFound);
+      return;
     }
-    res.status(200).send({ message: 'Пост успешно удален' });
+    res.status(statusCodes.ok).send(message.deleted);
   })
   .catch((err) => {
     if (err.name === 'CastError') {
-      res.status(400).send({ message: 'Переданы некорректные данные' });
+      res.status(statusCodes.badRequest).send(message.badRequest);
       return;
     }
-    res.status(500).send({ message: 'На сервере произошла ошибка' });
+    res.status(statusCodes.serverError).send(message.serverError);
   });
 
 const addLike = (req, res) => {
@@ -41,16 +44,17 @@ const addLike = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        res.status(404).send({ message: 'Пост не найден' });
+        res.status(statusCodes.notFound).send(message.cardNotFound);
+        return;
       }
-      res.status(200).send(card);
+      res.status(statusCodes.ok).send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
+        res.status(statusCodes.badRequest).send(message.badRequest);
         return;
       }
-      res.status(500).send({ message: 'На сервере произошла ошибка' });
+      res.status(statusCodes.serverError).send(message.serverError);
     });
 };
 
@@ -62,16 +66,17 @@ const deleteLike = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        res.status(404).send({ message: 'Пост не найден' });
+        res.status(statusCodes.notFound).send(message.cardNotFound);
+        return;
       }
-      res.status(200).send(card);
+      res.status(statusCodes.ok).send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
+        res.status(statusCodes.badRequest).send(message.badRequest);
         return;
       }
-      res.status(500).send({ message: 'На сервере произошла ошибка' });
+      res.status(statusCodes.serverError).send(message.serverError);
     });
 };
 
