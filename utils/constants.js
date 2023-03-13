@@ -6,7 +6,7 @@ const statusCodes = {
   serverError: 500,
 };
 
-const message = {
+const messages = {
   deleted: 'Пост успешно удален',
   badRequest: 'Переданы некорректные данные',
   cardNotFound: 'Пост не найден',
@@ -17,5 +17,5 @@ const message = {
 
 module.exports = {
   statusCodes,
-  message,
+  messages,
 };

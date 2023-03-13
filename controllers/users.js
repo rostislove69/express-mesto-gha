@@ -1,24 +1,24 @@
 const User = require('../models/user');
-const { statusCodes, message } = require('../utils/constants');
+const { statusCodes, messages } = require('../utils/constants');
 
 const getUsers = (req, res) => User.find({})
   .then((users) => res.status(statusCodes.ok).send(users))
-  .catch(() => res.status(statusCodes.serverError).send(message.serverError));
+  .catch(() => res.status(statusCodes.serverError).send({ message: messages.serverError }));
 
 const getCurrentUser = (req, res) => User.findById(req.params.id)
   .then((user) => {
     if (!user) {
-      res.status(statusCodes.notFound).send(message.userNotFound);
+      res.status(statusCodes.notFound).send({ message: messages.userNotFound });
       return;
     }
     res.status(statusCodes.ok).send(user);
   })
   .catch((err) => {
     if (err.name === 'CastError') {
-      res.status(statusCodes.badRequest).send(message.badRequest);
+      res.status(statusCodes.badRequest).send({ message: messages.badRequest });
       return;
     }
-    res.status(statusCodes.serverError).send(message.serverError);
+    res.status(statusCodes.serverError).send({ message: messages.serverError });
   });
 
 const postUser = (req, res) => {
@@ -27,10 +27,10 @@ const postUser = (req, res) => {
     .then((user) => res.status(statusCodes.created).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(statusCodes.badRequest).send(message.badRequest);
+        res.status(statusCodes.badRequest).send({ message: messages.badRequest });
         return;
       }
-      res.status(statusCodes.serverError).send(message.serverError);
+      res.status(statusCodes.serverError).send({ message: messages.serverError });
     });
 };
 
@@ -40,10 +40,10 @@ const updateUserInfo = (req, res) => {
     .then((user) => res.status(statusCodes.ok).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(statusCodes.badRequest).send(message.badRequest);
+        res.status(statusCodes.badRequest).send({ message: messages.badRequest });
         return;
       }
-      res.status(statusCodes.serverError).send(message.serverError);
+      res.status(statusCodes.serverError).send({ message: messages.serverError });
     });
 };
 
@@ -53,10 +53,10 @@ const updateUserAvatar = (req, res) => {
     .then((user) => res.status(statusCodes.ok).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(statusCodes.badRequest).send(message.badRequest);
+        res.status(statusCodes.badRequest).send({ message: messages.badRequest });
         return;
       }
-      res.status(statusCodes.serverError).send(message.serverError);
+      res.status(statusCodes.serverError).send({ message: messages.serverError });
     });
 };
 
