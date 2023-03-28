@@ -17,9 +17,9 @@ const validationLogin = celebrate({
   }),
 });
 
-const validationGetUserById = celebrate({
+const validationGetCurrentUser = celebrate({
   params: Joi.object().keys({
-    userId: Joi.string().required().hex().length(24),
+    id: Joi.string().required().hex().length(24),
   }),
 });
 
@@ -52,7 +52,7 @@ const validationCardId = celebrate({
 module.exports = {
   validationCreateUser,
   validationLogin,
-  validationGetUserById,
+  validationGetCurrentUser,
   validationUpdateUserInfo,
   validationUpdateAvatar,
   validationPostCard,
