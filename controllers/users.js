@@ -21,8 +21,9 @@ const getCurrentUser = (req, res, next) => User.findById(req.params.id)
   .catch((err) => {
     if (err.name === 'CastError') {
       next(new BadRequestError(messages.badRequest));
+    } else {
+      next(err);
     }
-    next(err);
   });
 
 const createUser = (req, res, next) => {
@@ -47,10 +48,11 @@ const createUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError(messages.badRequest));
-      } if (err.code === 11000) {
+      } else if (err.code === 11000) {
         next(new ConflictError(messages.userAlredyCreated));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -61,8 +63,9 @@ const updateUserInfo = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError(messages.badRequest));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -73,8 +76,9 @@ const updateUserAvatar = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError(messages.badRequest));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -107,8 +111,9 @@ const getUserProfile = (req, res, next) => User.findById(req.user._id)
   .catch((err) => {
     if (err.name === 'CastError') {
       next(new BadRequestError(messages.badRequest));
+    } else {
+      next(err);
     }
-    next(err);
   });
 
 module.exports = {

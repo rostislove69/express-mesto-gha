@@ -17,8 +17,9 @@ const postCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError(messages.badRequest));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -35,8 +36,9 @@ const deleteCard = (req, res, next) => Card.findByIdAndRemove(req.params.cardId)
   .catch((err) => {
     if (err.name === 'CastError') {
       next(new BadRequestError(messages.badRequest));
+    } else {
+      next(err);
     }
-    next(err);
   });
 
 const addLike = (req, res, next) => {
@@ -54,8 +56,9 @@ const addLike = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequestError(messages.badRequest));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -74,8 +77,9 @@ const deleteLike = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequestError(messages.badRequest));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
