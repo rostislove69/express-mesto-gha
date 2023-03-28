@@ -1,42 +1,45 @@
 const Card = require('../models/card');
+const BadRequestError = require('../errors/BadRequestError');
+const NoRightsError = require('../errors/NoRightsError');
+const NotFoundError = require('../errors/NotFoundError');
 const { statusCodes, messages } = require('../utils/constants');
 
-const getCards = (req, res) => Card.find({})
+const getCards = (req, res, next) => Card.find({})
   .populate(['owner', 'likes'])
   .then((cards) => res.status(statusCodes.ok).send(cards))
-  .catch(() => res.status(statusCodes.serverError).send({ message: messages.serverError }));
+  .catch(next);
 
-const postCard = (req, res) => {
+const postCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   return Card.create({ name, link, owner })
     .then((card) => res.status(statusCodes.created).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(statusCodes.badRequest).send({ message: messages.badRequest });
-        return;
+        next(new BadRequestError(messages.badRequest));
       }
-      res.status(statusCodes.serverError).send({ message: messages.serverError });
+      next(err);
     });
 };
 
-const deleteCard = (req, res) => Card.findByIdAndRemove(req.params.cardId)
+const deleteCard = (req, res, next) => Card.findByIdAndRemove(req.params.cardId)
   .then((card) => {
     if (!card) {
-      res.status(statusCodes.notFound).send({ message: messages.cardNotFound });
-      return;
+      throw new NotFoundError(messages.cardNotFound);
+    }
+    if (!card.owner.equals(req.user._id)) {
+      throw new NoRightsError(messages.notDeleted);
     }
     res.status(statusCodes.ok).send({ message: messages.deleted });
   })
   .catch((err) => {
     if (err.name === 'CastError') {
-      res.status(statusCodes.badRequest).send({ message: messages.badRequest });
-      return;
+      next(new BadRequestError(messages.badRequest));
     }
-    res.status(statusCodes.serverError).send({ message: messages.serverError });
+    next(err);
   });
 
-const addLike = (req, res) => {
+const addLike = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
@@ -44,21 +47,19 @@ const addLike = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        res.status(statusCodes.notFound).send({ message: messages.cardNotFound });
-        return;
+        throw new NotFoundError(messages.cardNotFound);
       }
       res.status(statusCodes.ok).send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(statusCodes.badRequest).send({ message: messages.badRequest });
-        return;
+        next(new BadRequestError(messages.badRequest));
       }
-      res.status(statusCodes.serverError).send({ message: messages.serverError });
+      next(err);
     });
 };
 
-const deleteLike = (req, res) => {
+const deleteLike = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
@@ -66,17 +67,15 @@ const deleteLike = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        res.status(statusCodes.notFound).send({ message: messages.cardNotFound });
-        return;
+        throw new NotFoundError(messages.cardNotFound);
       }
       res.status(statusCodes.ok).send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(statusCodes.badRequest).send({ message: messages.badRequest });
-        return;
+        next(new BadRequestError(messages.badRequest));
       }
-      res.status(statusCodes.serverError).send({ message: messages.serverError });
+      next(err);
     });
 };
 
