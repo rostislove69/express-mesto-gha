@@ -31,7 +31,8 @@ const deleteCard = (req, res, next) => Card.findByIdAndRemove(req.params.cardId)
     if (!card.owner.equals(req.user._id)) {
       throw new NoRightsError(messages.notDeleted);
     }
-    res.status(statusCodes.ok).send({ message: messages.deleted });
+    card.deleteOne()
+      .then(() => res.status(statusCodes.ok).send({ message: messages.deleted }));
   })
   .catch((err) => {
     if (err.name === 'CastError') {
