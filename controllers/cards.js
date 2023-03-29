@@ -23,7 +23,7 @@ const postCard = (req, res, next) => {
     });
 };
 
-const deleteCard = (req, res, next) => Card.findByIdAndRemove(req.params.cardId)
+const deleteCard = (req, res, next) => Card.findById(req.params.cardId)
   .then((card) => {
     if (!card) {
       throw new NotFoundError(messages.cardNotFound);
