@@ -1,8 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors');
-const path = require('path');
 const { errors } = require('celebrate');
+const cors = require('./middlewares/cors');
 const routes = require('./routes');
 const { createUser, login } = require('./controllers/users');
 const { validationCreateUser, validationLogin } = require('./middlewares/validator');
@@ -12,19 +11,12 @@ const errorHandler = require('./middlewares/errorHandler');
 const { PORT = 3000 } = process.env;
 
 mongoose.connect('mongodb://0.0.0.0:27017/mestodb');
+
 const app = express();
 
-app.use(cors({
-  origin: [
-    'https://projectmesto.nomoredomains.work',
-    'http://projectmesto.nomoredomains.work',
-    'https://localhost:3000',
-  ],
-}));
-
+app.use(cors);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join((__dirname, 'public'))));
 
 app.post('/signup', validationCreateUser, createUser);
 app.post('/signin', validationLogin, login);
