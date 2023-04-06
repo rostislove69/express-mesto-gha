@@ -13,7 +13,18 @@ const postCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   return Card.create({ name, link, owner })
-    .then((card) => res.status(statusCodes.created).send(card))
+    .then((card) => {
+      Card.findById(card._id)
+        .populate(['owner', 'likes'])
+        .then((result) => res.status(statusCodes.created).send(result))
+        .catch((err) => {
+          if (err.name === 'ValidationError') {
+            next(new BadRequestError(messages.badRequest));
+          } else {
+            next(err);
+          }
+        });
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError(messages.badRequest));
@@ -47,7 +58,7 @@ const addLike = (req, res, next) => {
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
     { new: true },
-  )
+  ).populate(['owner', 'likes'])
     .then((card) => {
       if (!card) {
         throw new NotFoundError(messages.cardNotFound);
@@ -68,7 +79,7 @@ const deleteLike = (req, res, next) => {
     req.params.cardId,
     { $pull: { likes: req.user._id } },
     { new: true },
-  )
+  ).populate(['owner', 'likes'])
     .then((card) => {
       if (!card) {
         throw new NotFoundError(messages.cardNotFound);
